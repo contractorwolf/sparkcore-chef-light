@@ -1,30 +1,20 @@
 /*
-
-
     CHEF-LIGHT
     DEVICEID: [YOUR DEVICE ID]
     ACCESS TOKEN: [YOUR ACCESS TOKEN]
     
-    //flash LED
-    curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/flash -d access_token=[YOUR ACCESS TOKEN] -d "args=0"
-    
     //turnLedOn
-    curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/turnLedOn -d access_token=[YOUR ACCESS TOKEN] -d "args=0"
+    curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/turnLedOn -d access_token=[YOUR ACCESS TOKEN]
     
-    //turnLedOn
-    curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/turnLedOff -d access_token=[YOUR ACCESS TOKEN] -d "args=0"
+    //turnLedOff
+    curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/turnLedOff -d access_token=[YOUR ACCESS TOKEN]
     
-    //get loopcount
-    curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/loopCount?access_token=[YOUR ACCESS TOKEN]
-
-
+    //pass the values for the LED strip as the arg value at the end
     //set white led strip value
     curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/setWhiteLed -d access_token=[YOUR ACCESS TOKEN] -d "args=128"
     
-    
     //set blue led strip value
     curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/setWhiteLed -d access_token=[YOUR ACCESS TOKEN] -d "args=128"
-    
     
     //set red led strip value
     curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/setRedLed -d access_token=[YOUR ACCESS TOKEN] -d "args=128"
@@ -32,16 +22,14 @@
     //set green led strip value
     curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/setGreenLed -d access_token=[YOUR ACCESS TOKEN] -d "args=128"
     
-    
     //set ALL led strip value
     curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/setAllLed -d access_token=[YOUR ACCESS TOKEN] -d "args=128"
-    
     
     //show sirens
     curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/showSirens -d access_token=[YOUR ACCESS TOKEN] -d "args=5"
     
-    
-    
+    //show basic sirens (no arguments)
+    curl https://api.spark.io/v1/devices/[YOUR DEVICE ID]/showSirens -d access_token=[YOUR ACCESS TOKEN]  
     
 */
 
@@ -53,44 +41,33 @@ int ledStripBluePin = A1;
 int ledStripRedPin = A4;
 int ledStripGreenPin = A5;
 
-
-
-
-int loopCount = 0;
-int isOpen = 0;
-
 void setup() {
-
-    pinMode(blueLEDPin, OUTPUT);   
     
+    //set the PWM analog pins as outputs
     pinMode(ledStripWhitePin, OUTPUT);  // sets the white LED strip pin as output
     pinMode(ledStripBluePin, OUTPUT);  // sets the white LED strip pin as output
     pinMode(ledStripRedPin, OUTPUT);  // sets the white LED strip pin as output
     pinMode(ledStripGreenPin, OUTPUT);  // sets the white LED strip pin as output
     
+    //set the default output to 0 (off)
     analogWrite(ledStripWhitePin, 0); 
     analogWrite(ledStripBluePin, 0); 
     analogWrite(ledStripRedPin, 0); 
     analogWrite(ledStripGreenPin, 0); 
     
-    //function calls
-    Particle.function("flash", flash);
-    Particle.function("turnLedOn", turnLedOn);
-    Particle.function("turnLedOff", turnLedOff);
-      // register the cloud function
+    // register the cloud function calls
+    Particle.function("turnLedOn", turnLedOn);//turn white strip on to my default
+    Particle.function("turnLedOff", turnLedOff);//
     Particle.function("setWhiteLed", setWhiteLedStrip);
     Particle.function("setBlueLed", setBlueLedStrip);
     Particle.function("setRedLed", setRedLedStrip);
     Particle.function("setGreenLed", setGreenLedStrip);
-        
     Particle.function("setAllLed", setAllLedStrip);
  
     Particle.function("showSirens", showSirens);   
     Particle.function("basicSirens", showBasicSirens);       
     
-    //variables
-    Particle.variable("loopCount", &loopCount, INT);
-    
+    //flash LED to indicate a restart
     flashLeds(3,50);
     
     //wait to show the cyan indication of web access
@@ -102,6 +79,7 @@ void setup() {
 
 
 void loop() {
+    //set the onboard rgb LED to indicated cloud connection status
     if(Particle.connected()){
         // Sets the LED to blue
         RGB.color(0, 0, 255);
@@ -109,8 +87,7 @@ void loop() {
         // Set the LED to red
         RGB.color(255, 0, 0);
     }
-    
-    loopCount++;
+
     delay(200);     
 }
 
@@ -168,11 +145,6 @@ int setAllLedStrip(String command)
   return cmd;  // report back what was received
 }
 
-
-void showLedValues(String command){
-
-}
-
 int showSirens(String command){
     resetAll();
     int cmd = command.toInt();
@@ -192,7 +164,6 @@ int showSirens(String command){
         delay(spaceLength);   
         index++;
     }
-    
     return cmd;  // report back what was received
 }
 
@@ -217,23 +188,8 @@ int showBasicSirens(String command){
         delay(spaceLength);   
         index++;
     }
-    
     return cmd;  // report back what was received
 }
-
-
-
-
-void resetAll(){
-    analogWrite(ledStripRedPin, 0); 
-    analogWrite(ledStripGreenPin, 0); 
-    analogWrite(ledStripBluePin, 0); 
-    analogWrite(ledStripWhitePin, 0); 
-}
-
-
-
-
 
 void flashLeds(int number, int spaceLength){
     // Set the LED to green
@@ -241,11 +197,8 @@ void flashLeds(int number, int spaceLength){
     
     int index = 0;
     while(index<=number){
-
-        digitalWrite(blueLEDPin, HIGH);   // turn the LED on (HIGH is the voltage level)
         analogWrite(ledStripWhitePin, 255); 
         delay(spaceLength);               // wait for a second
-        digitalWrite(blueLEDPin, LOW);    // turn the LED off by making the voltage LOW
         analogWrite(ledStripWhitePin, 0); 
         delay(spaceLength); 
     
@@ -253,22 +206,22 @@ void flashLeds(int number, int spaceLength){
     }
 }
 
-
-int flash(String args){
-    flashLeds(6,100);
-    return(args.length());
-}
-
 int turnLedOn(String args){
     Particle.publish("turnLedOn()");
-    //digitalWrite(blueLEDPin, HIGH);   // turn the LED on (HIGH is the voltage level)
     analogWrite(ledStripWhitePin, 200); 
     return(1);
 }
 
 int turnLedOff(String args){
-    //digitalWrite(blueLEDPin, LOW);   // turn the LED off (LOW is the voltage level)
-    analogWrite(ledStripWhitePin, 0); 
+    resetAll();
     Particle.publish("turnLedOff()");
     return(0);
+}
+
+//private
+void resetAll(){
+    analogWrite(ledStripRedPin, 0); 
+    analogWrite(ledStripGreenPin, 0); 
+    analogWrite(ledStripBluePin, 0); 
+    analogWrite(ledStripWhitePin, 0); 
 }
