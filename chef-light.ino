@@ -34,12 +34,11 @@
 */
 
 
+int ledStripWhitePin = A5;
+int ledStripBluePin = A4;
+int ledStripRedPin = A1;
+int ledStripGreenPin = A0;
 
-int blueLEDPin = D7;
-int ledStripWhitePin = A0;
-int ledStripBluePin = A1;
-int ledStripRedPin = A4;
-int ledStripGreenPin = A5;
 
 void setup() {
     
